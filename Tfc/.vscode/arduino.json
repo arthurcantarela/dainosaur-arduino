@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "Tfc.ino",
+    "port": "/dev/ttyACM0",
+    "programmer": "usbGemma"
+}

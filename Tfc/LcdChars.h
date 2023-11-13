@@ -1,0 +1,11 @@
+#ifndef LCDCHARS_H
+#define LCDCHARS_H
+
+#define DINO_UPPER_CHAR 0
+#define DINO_LOWER_CHAR 1
+#define CACTUS_CHAR 2
+#define CACTUS_RIGHT_CHAR 3
+#define BIRD_CHAR 4
+#define BIRD_RIGHT_CHAR 5
+
+#endif // LCDCHARS_H
