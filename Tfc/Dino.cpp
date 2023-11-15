@@ -16,19 +16,19 @@ void Dino::updateState()
     {
         state = GROUND;
     }
-    else if (state == CROUCHED)
+    else if (state == DUCKED)
     {
         h = 6;
         state = GROUND;
     }
 }
 
-void Dino::crouch()
+void Dino::duck()
 {
     if (state == GROUND)
     {
         h = 4;
-        state = CROUCHED;
+        state = DUCKED;
     }
 }
 
@@ -45,17 +45,9 @@ void Dino::jump()
 
 bool Dino::checkColision(GameObject *obstacle)
 {
-    int hh = h - 2;
     if (x + w > obstacle->x && x < obstacle->x + obstacle->w &&
         y + h > obstacle->y && y < obstacle->y + obstacle->h)
     {
-        if (state == CROUCHED)
-        {
-            Serial.println("1:\t" + x + w > obstacle->x ? "true" : "false");
-            Serial.println("2:\t" + x < obstacle->x + obstacle->w ? "true" : "false");
-            Serial.println("3:\t" + y + hh > obstacle->y ? "true" : "false");
-            Serial.println("4:\t" + y < obstacle->y + obstacle->h ? "true" : "false");
-        }
         state = DEAD;
         return true; // Collision detected.
     }

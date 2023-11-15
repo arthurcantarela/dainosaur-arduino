@@ -8,7 +8,7 @@ enum DinoState
 {
     GROUND,
     JUMPING,
-    CROUCHED,
+    DUCKED,
     DEAD
 };
 
@@ -19,7 +19,7 @@ public:
 
     Dino();
     void updateState();
-    void crouch();
+    void duck();
     void stand();
     void jump();
     bool checkColision(GameObject *obstacle);

@@ -9,6 +9,7 @@
 #include "CactusView.h"
 #include "BirdView.h"
 #include "Button.h"
+#include "QLearning.h"
 
 #define pinRs 8
 #define pinEn 9
@@ -31,29 +32,34 @@ public:
     Game();
 
     void run();
+    QLState getState();
 
 private:
     GameState state;
     int score;
+    int attempts;
 
     Dino *dino;
     Cactus *cactus;
     Bird *bird;
 
-    DinoView *dinoView;
-    CactusView *cactusView;
-    BirdView *birdView;
+    // DinoView *dinoView;
+    // CactusView *cactusView;
+    // BirdView *birdView;
 
-    unsigned long previousMillis;
-    const unsigned long interval = 200;
+    // unsigned long previousMillis;
+    // const unsigned long interval = 50;
 
-    LiquidCrystal *lcd;
-    Button *button;
+    QLearning qLearning;
+
+    // LiquidCrystal *lcd;
+    // Button *button;
 
     void startGame();
     void handleUserInput();
+    void handleUserInput(QLAction action);
     void update();
-    void render();
+    // void render();
 };
 
 #endif // GAME_H
