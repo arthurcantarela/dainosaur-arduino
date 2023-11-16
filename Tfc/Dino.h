@@ -1,7 +1,6 @@
 #ifndef DINO_H
 #define DINO_H
 
-#include "Arduino.h"
 #include "GameObject.h"
 
 enum DinoState

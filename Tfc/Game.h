@@ -1,15 +1,21 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <Arduino.h>
 #include "Dino.h"
 #include "Cactus.h"
 #include "Bird.h"
+#include "FeatureFlags.h"
+#include "QLearning.h"
+
+#if FEATURE_ARDUINO
+#include <Arduino.h>
+#include "Button.h"
 #include "DinoView.h"
 #include "CactusView.h"
 #include "BirdView.h"
-#include "Button.h"
-#include "QLearning.h"
+#else
+#include <iostream>
+#endif
 
 #define pinRs 8
 #define pinEn 9
@@ -43,23 +49,28 @@ private:
     Cactus *cactus;
     Bird *bird;
 
-    // DinoView *dinoView;
-    // CactusView *cactusView;
-    // BirdView *birdView;
-
-    // unsigned long previousMillis;
-    // const unsigned long interval = 50;
-
     QLearning qLearning;
 
-    // LiquidCrystal *lcd;
-    // Button *button;
+#if FEATURE_ARDUINO
+    DinoView *dinoView;
+    CactusView *cactusView;
+    BirdView *birdView;
+
+    unsigned long previousMillis;
+    const unsigned long interval = 50;
+
+    LiquidCrystal *lcd;
+    Button *button;
+#endif
 
     void startGame();
     void handleUserInput();
     void handleUserInput(QLAction action);
     void update();
-    // void render();
+
+#if FEATURE_ARDUINO
+    void render();
+#endif
 };
 
 #endif // GAME_H

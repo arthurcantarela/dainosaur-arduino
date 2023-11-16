@@ -1,12 +1,12 @@
+#include "Game.h"
+#if !FEATURE_ARDUINO
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include "Game.h"
+#endif
 
 int main()
 {
-    setup();
-
     Game game;
 
     // Main loop

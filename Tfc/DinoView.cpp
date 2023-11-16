@@ -15,7 +15,7 @@ void DinoView::updateBitmaps()
 {
     int i;
     resetBitmaps();
-    if (dino->state == CROUCHED)
+    if (dino->state == DUCKED)
     {
         setLowerBitmap(downBitmap);
     }

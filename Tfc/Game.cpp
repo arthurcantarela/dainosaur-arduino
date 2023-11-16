@@ -2,10 +2,6 @@
 
 Game::Game() : qLearning()
 {
-    // lcd = new LiquidCrystal(pinRs, pinEn, pinD4, pinD5, pinD6, pinD7);
-    // lcd->begin(16, 2);
-    // lcd->clear();
-
     attempts = 0;
     score = 0;
     state = RUNNING;
@@ -14,30 +10,42 @@ Game::Game() : qLearning()
     bird = new Bird();
     cactus = new Cactus();
 
-    // dinoView = new DinoView(dino, lcd);
-    // birdView = new BirdView(bird, lcd);
-    // cactusView = new CactusView(cactus, lcd);
+#if FEATURE_ARDUINO
+    lcd = new LiquidCrystal(pinRs, pinEn, pinD4, pinD5, pinD6, pinD7);
+    lcd->begin(16, 2);
+    lcd->clear();
 
-    // button = new Button(A0);
+    dinoView = new DinoView(dino, lcd);
+    birdView = new BirdView(bird, lcd);
+    cactusView = new CactusView(cactus, lcd);
+
+    button = new Button(A0);
+#endif
 }
 
 void Game::startGame()
 {
+#if !FEATURE_ARDUINO
+    std::cout << std::endl
+              << "NEW ATTEMPT!" << std::endl;
+#endif
     if (state == MENU || state == GAME_OVER)
     {
         attempts++;
         score = 0;
 
-        // previousMillis = 0;
         state = RUNNING;
 
         dino = new Dino();
         bird = new Bird();
         cactus = new Cactus();
 
-        // dinoView = new DinoView(dino, lcd);
-        // birdView = new BirdView(bird, lcd);
-        // cactusView = new CactusView(cactus, lcd);
+#if FEATURE_ARDUINO
+        previousMillis = 0;
+        dinoView = new DinoView(dino, lcd);
+        birdView = new BirdView(bird, lcd);
+        cactusView = new CactusView(cactus, lcd);
+#endif
     }
 }
 
@@ -45,6 +53,8 @@ QLState Game::getState()
 {
     bool isBirdClose = (bird->x > dino->x) && (-dino->x + bird->x < 15);
     bool isCactusClose = (cactus->x > dino->x) && (-dino->x + cactus->x < 15);
+    bool isBirdFar = (bird->x > dino->x) && (-dino->x + bird->x < 60);
+    bool isCactusFar = (cactus->x > dino->x) && (-dino->x + cactus->x < 60);
 
     if (isBirdClose && isCactusClose)
         return BOTH_CLOSE;
@@ -52,35 +62,43 @@ QLState Game::getState()
         return BIRD_CLOSE;
     if (isCactusClose)
         return CACTUS_CLOSE;
-    return NONE_CLOSE;
+    if (isBirdFar && isCactusFar)
+        return BOTH_FAR;
+    if (isBirdFar)
+        return BIRD_FAR;
+    if (isCactusFar)
+        return CACTUS_FAR;
+    return NOTHING_ON_SIGHT;
 }
 
 void Game::handleUserInput()
 {
-    //     switch (state)
-    //     {
-    //     case MENU:
-    //         break;
+#if FEATURE_ARDUINO
+    switch (state)
+    {
+    case MENU:
+        break;
 
-    //     case RUNNING:
-    //         switch (button->getState())
-    //         {
-    //         case UP:
-    //             dino->jump();
-    //             break;
+    case RUNNING:
+        switch (button->getState())
+        {
+        case UP:
+            dino->jump();
+            break;
 
-    //         case DOWN:
-    //             dino->duck();
-    //             break;
+        case DOWN:
+            dino->duck();
+            break;
 
-    //         default:
-    //             break;
-    //         }
-    //         break;
+        default:
+            break;
+        }
+        break;
 
-    //     case GAME_OVER:
-    //         break;
-    //     }
+    case GAME_OVER:
+        break;
+    }
+#endif
 }
 
 void Game::handleUserInput(QLAction action)
@@ -134,42 +152,57 @@ void Game::update()
     }
 }
 
-// void Game::render()
-// {
-//     lcd->setCursor(1, 1);
-//     lcd->print("               ");
-//     birdView->render();
-//     cactusView->render();
-//     dinoView->render();
+#if FEATURE_ARDUINO
+void Game::render()
+{
+    lcd->setCursor(1, 1);
+    lcd->print("               ");
+    birdView->render();
+    cactusView->render();
+    dinoView->render();
 
-//     lcd->setCursor(1, 0);
-//     lcd->print("               ");
-//     lcd->setCursor(8, 0);
-//     lcd->print(score);
-// }
+    lcd->setCursor(1, 0);
+    lcd->print("               ");
+    lcd->setCursor(8, 0);
+    lcd->print(score);
+}
+#endif
 
 void Game::run()
 {
-    // unsigned long currentMillis = millis(); // Get the current millis() value
-    // button->update();
-    // if (currentMillis - previousMillis >= interval)
-    // {
-    if (state == RUNNING)
+#if FEATURE_ARDUINO
+    unsigned long currentMillis = millis();
+    button->update();
+    if (currentMillis - previousMillis >= interval)
     {
-        // render();
-        update();
+#endif
+Serial.println("aqui");
+        if (state == RUNNING)
+        {
+#if FEATURE_ARDUINO
+            render();
+#endif
+            update();
+#if FEATURE_ARDUINO
+            handleUserInput();
+#else
         QLState state = getState();
         QLAction action = qLearning.chooseAction(state);
         handleUserInput(action);
         int reward = score;
-        if (action == UP)
-            reward -= 10;
-        if (action == DOWN)
-            reward += 10;
+        if (action == JUMP)
+            reward -= 1;
+        if (action == DUCK)
+            reward -= 1;
+
+        std::cout << action << " | " << reward << " | " << score << std::endl;
 
         qLearning.updateQTable(state, action, reward, getState());
+#endif
+        }
+#if FEATURE_ARDUINO
+        previousMillis = currentMillis;
+        button->reset();
     }
-    //     previousMillis = currentMillis;
-    //     button->reset();
-    // }
+#endif
 }

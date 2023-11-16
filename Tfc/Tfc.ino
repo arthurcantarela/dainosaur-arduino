@@ -1,14 +1,15 @@
-#include <Arduino.h>
-#include "Game.h"
+//#include "Game.h"
 
-Game *game;
+//Game *game;
 void setup()
 {
-    game = new Game();
     Serial.begin(9600);
+    Serial.println("hii1");
+//    game = new Game();
 }
 
 void loop()
 {
-    game->run();
+    Serial.println("hii");
+//    game->run();
 }

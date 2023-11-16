@@ -1,7 +1,7 @@
 // QLearning.cpp
 
 #include "QLearning.h"
-#include <Arduino.h>
+// #include <Arduino.h>
 
 QLearning::QLearning()
 {
@@ -28,10 +28,17 @@ void QLearning::updateQTable(QLState state, QLAction action, int reward, QLState
 
 QLAction QLearning::chooseAction(QLState state)
 {
+#if FEATURE_ARDUINO
     if (random(0, 100) < epsilon * 100)
     {
-        return (QLAction)random(0, NUM_ACTIONS);
+        return (QLAction)(random(0, NUM_ACTIONS));
     }
+#else
+    if (rand() % 100 < epsilon * 100)
+    {
+        return (QLAction)(rand() % NUM_ACTIONS);
+    }
+#endif
     else
     {
         return (QLAction)getMaxIndex(state);
