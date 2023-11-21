@@ -2,10 +2,10 @@
 #define GAME_H
 
 #define SHORT_INTERVAL 90
-#define LONG_INTERVAL 200
+#define LONG_INTERVAL 1000
 #define MAX_ATTEMPTS 1000000
-#define LOG_EACH_N_ATTEMPTS 10000
-#define MAX_SCORE 100000
+#define LOG_EACH_N_ATTEMPTS 1000
+#define MAX_SCORE 10000
 
 #include "Dino.h"
 #include "Cactus.h"

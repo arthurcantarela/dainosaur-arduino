@@ -2,9 +2,9 @@
 
 QLearning::QLearning()
 {
-    epsilon = 0.1; // Default value, can be adjusted
-    learning_rate = 0.1;
-    discount_factor = 0.9;
+    epsilon = maxEpsilon; // Default value, can be adjusted
+    learning_rate = 0.05;
+    discount_factor = .85;
 
     // Initialize Q-table with zeros
     for (int i = 0; i < NUM_STATES; i++)
@@ -17,6 +17,7 @@ QLearning::QLearning()
 }
 
 static const char stateDictionary[][35] = {
+    "DINO_JUMPING\t\t\t",
     "BIRD_VERY_FAR_CACTUS_VERY_FAR\t",
     "BIRD_VERY_FAR_CACTUS_FAR\t",
     "BIRD_VERY_FAR_CACTUS_CLOSE\t",
@@ -90,7 +91,12 @@ QLAction QLearning::chooseAction(QLState state)
 
 void QLearning::setEpsilon(float newEpsilon)
 {
-    epsilon = newEpsilon;
+    if (newEpsilon > 1)
+        epsilon = 1;
+    else if (newEpsilon < 0)
+        epsilon = 0;
+    else
+        epsilon = newEpsilon;
 }
 
 int QLearning::getMaxIndex(QLState state)

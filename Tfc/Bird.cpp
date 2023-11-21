@@ -4,15 +4,19 @@ Bird::Bird()
 {
   w = 4;
   h = 3;
-  x = 18 * 5;
+  x = 16 * 5;
   y = 4;
-  vx = -3;
+  vx = -6;
   vy = 0;
   ax = ay = 0;
+  canMove = true;
 }
 
 void Bird::updateState()
 {
-  if (x <= -150)
-    x = 18 * 5;
+  if (x < 0)
+  {
+    x = 16 * 5;
+    canMove = false;
+  }
 }

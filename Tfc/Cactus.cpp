@@ -4,7 +4,7 @@ Cactus::Cactus()
 {
   w = 5;
   h = 4;
-  x = 15 * 5;
+  x = 16 * 5;
   y = 0;
   vx = -2;
   vy = 0;
@@ -13,6 +13,6 @@ Cactus::Cactus()
 
 void Cactus::updateState()
 {
-  if (x <= 0)
-    x = 15 * 5;
+  if (x < 0)
+    x = 16 * 5;
 }

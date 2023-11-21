@@ -3,8 +3,11 @@
 
 #include "GameObject.h"
 
-class Bird : public GameObject {
+class Bird : public GameObject
+{
 public:
+    bool canMove;
+
     Bird();
     void updateState();
 };

@@ -1,7 +1,8 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-class GameObject {
+class GameObject
+{
 public:
     int x, y, h, w, vx, vy, ax, ay;
     void move();

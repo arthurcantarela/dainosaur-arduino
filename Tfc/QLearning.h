@@ -1,7 +1,7 @@
 #ifndef QLEARNING_H
 #define QLEARNING_H
 
-#define NUM_STATES 16
+#define NUM_STATES 17
 #define NUM_ACTIONS 3
 
 #include "FeatureFlags.h"
@@ -15,6 +15,7 @@
 
 enum QLState
 {
+    DINO_JUMPING,
     BIRD_VERY_FAR_CACTUS_VERY_FAR,
     BIRD_VERY_FAR_CACTUS_FAR,
     BIRD_VERY_FAR_CACTUS_CLOSE,
@@ -49,6 +50,7 @@ public:
     void printQTable();
     void setEpsilon(float epsilon);
     float epsilon;
+    const float maxEpsilon = .1;
 
 private:
     float q_table[NUM_STATES][NUM_ACTIONS];
