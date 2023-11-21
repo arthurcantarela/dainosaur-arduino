@@ -5,12 +5,12 @@ Game *game;
 void setup()
 {
     Serial.begin(9600);
-    Serial.println("hii1");
+    Serial.println();
+    Serial.println("setup");
     game = new Game();
 }
 
 void loop()
 {
-    Serial.println("hii");
     game->run();
 }

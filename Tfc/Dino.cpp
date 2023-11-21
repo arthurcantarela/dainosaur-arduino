@@ -18,8 +18,8 @@ void Dino::updateState()
     }
     else if (state == DUCKED)
     {
-        h = 6;
         state = GROUND;
+        h = 6;
     }
 }
 
@@ -45,11 +45,24 @@ void Dino::jump()
 
 bool Dino::checkColision(GameObject *obstacle)
 {
+    if (obstacle->x <= 5)
+    {
+#if !FEATURE_ARDUINO
+        // std::cout << "dino:\t" << w << "x" << h << " (" << x << ", " << y << ")" << std::endl;
+        // std::cout << "obst:\t" << obstacle->w << "x" << obstacle->h << " (" << obstacle->x << ", " << obstacle->y << ")" << std::endl;
+        // std::cout << "obstacle->x " << obstacle->x << std::endl;
+        // std::cout << "state " << state << std::endl;
+#endif
+    }
+    // if (obstacle->x < 0)
+    // {
+    //     return false;
+    // }
     if (x + w > obstacle->x && x < obstacle->x + obstacle->w &&
         y + h > obstacle->y && y < obstacle->y + obstacle->h)
     {
         state = DEAD;
-        return true; // Collision detected.
+        return true; // Collision detected.}
     }
     return false; // No collision.
 }

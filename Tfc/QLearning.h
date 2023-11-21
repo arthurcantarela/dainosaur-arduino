@@ -1,9 +1,7 @@
-// QLearning.h
-
 #ifndef QLEARNING_H
 #define QLEARNING_H
 
-#define NUM_STATES 7
+#define NUM_STATES 16
 #define NUM_ACTIONS 3
 
 #include "FeatureFlags.h"
@@ -12,17 +10,27 @@
 #include <Arduino.h>
 #else
 #include <cstdlib>
+#include <iostream>
 #endif
 
 enum QLState
 {
-    BIRD_CLOSE,
-    BIRD_FAR,
-    CACTUS_CLOSE,
-    CACTUS_FAR,
-    BOTH_CLOSE,
-    BOTH_FAR,
-    NOTHING_ON_SIGHT
+    BIRD_VERY_FAR_CACTUS_VERY_FAR,
+    BIRD_VERY_FAR_CACTUS_FAR,
+    BIRD_VERY_FAR_CACTUS_CLOSE,
+    BIRD_VERY_FAR_CACTUS_VERY_CLOSE,
+    BIRD_FAR_CACTUS_VERY_FAR,
+    BIRD_FAR_CACTUS_FAR,
+    BIRD_FAR_CACTUS_CLOSE,
+    BIRD_FAR_CACTUS_VERY_CLOSE,
+    BIRD_CLOSE_CACTUS_VERY_FAR,
+    BIRD_CLOSE_CACTUS_FAR,
+    BIRD_CLOSE_CACTUS_CLOSE,
+    BIRD_CLOSE_CACTUS_VERY_CLOSE,
+    BIRD_VERY_CLOSE_CACTUS_VERY_FAR,
+    BIRD_VERY_CLOSE_CACTUS_FAR,
+    BIRD_VERY_CLOSE_CACTUS_CLOSE,
+    BIRD_VERY_CLOSE_CACTUS_VERY_CLOSE
 };
 
 enum QLAction
@@ -38,11 +46,12 @@ public:
     QLearning();
     void updateQTable(QLState state, QLAction action, int reward, QLState newState);
     QLAction chooseAction(QLState state);
+    void printQTable();
     void setEpsilon(float epsilon);
+    float epsilon;
 
 private:
     float q_table[NUM_STATES][NUM_ACTIONS];
-    float epsilon;
     float learning_rate;
     float discount_factor;
 

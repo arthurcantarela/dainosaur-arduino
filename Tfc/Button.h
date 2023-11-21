@@ -7,7 +7,8 @@ enum ButtonState
 {
     NONE,
     UP,
-    DOWN
+    DOWN,
+    SELECT
 };
 
 class Button

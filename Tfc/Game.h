@@ -1,6 +1,12 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define SHORT_INTERVAL 90
+#define LONG_INTERVAL 200
+#define MAX_ATTEMPTS 1000000
+#define LOG_EACH_N_ATTEMPTS 10000
+#define MAX_SCORE 100000
+
 #include "Dino.h"
 #include "Cactus.h"
 #include "Bird.h"
@@ -39,17 +45,22 @@ public:
 
     void run();
     QLState getState();
+    bool isTraining();
+    void setTraining(bool newTraining);
 
 private:
     GameState state;
     int score;
+    int maxScore;
     int attempts;
+    bool training;
 
     Dino *dino;
     Cactus *cactus;
     Bird *bird;
 
     QLearning qLearning;
+    unsigned long interval;
 
 #if FEATURE_ARDUINO
     DinoView *dinoView;
@@ -57,7 +68,6 @@ private:
     BirdView *birdView;
 
     unsigned long previousMillis;
-    const unsigned long interval = 50;
 
     LiquidCrystal *lcd;
     Button *button;

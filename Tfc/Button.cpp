@@ -27,13 +27,11 @@ ButtonState Button::getState()
 
 ButtonState Button::readButton(int buttonVal)
 {
+    if ((buttonVal > 600) && (buttonVal < 800))
+        return SELECT;
     if ((buttonVal < 400) && (buttonVal >= 200))
-    {
         return DOWN;
-    }
-    else if ((buttonVal < 200) && (buttonVal >= 60))
-    {
+    if ((buttonVal < 200) && (buttonVal >= 60))
         return UP;
-    }
     return NONE;
 }

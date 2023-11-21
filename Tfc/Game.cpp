@@ -3,8 +3,10 @@
 Game::Game() : qLearning()
 {
     attempts = 0;
-    score = 0;
+    maxScore = score = 0;
     state = RUNNING;
+    training = false;
+    interval = LONG_INTERVAL;
 
     dino = new Dino();
     bird = new Bird();
@@ -23,18 +25,38 @@ Game::Game() : qLearning()
 #endif
 }
 
-void Game::startGame()
+bool Game::isTraining()
 {
 #if !FEATURE_ARDUINO
-    std::cout << std::endl
-              << "NEW ATTEMPT!" << std::endl;
+    return true;
 #endif
+    return training;
+}
+
+void Game::setTraining(bool newTraining)
+{
+    interval = newTraining ? SHORT_INTERVAL : LONG_INTERVAL;
+    training = newTraining;
+}
+
+void Game::startGame()
+{
     if (state == MENU || state == GAME_OVER)
     {
         attempts++;
         score = 0;
-
-        state = RUNNING;
+        if (attempts < MAX_ATTEMPTS)
+            state = RUNNING;
+        else
+        {
+            qLearning.printQTable();
+            qLearning.setEpsilon(0);
+#if !FEATURE_ARDUINO
+            std::cout << "maxScore:\t" << maxScore << std::endl;
+            std::cin.get();
+#endif
+            state = RUNNING;
+        }
 
         dino = new Dino();
         bird = new Bird();
@@ -49,26 +71,46 @@ void Game::startGame()
     }
 }
 
+static const QLState stateMap[4][4] = {
+    {BIRD_VERY_FAR_CACTUS_VERY_FAR,
+     BIRD_VERY_FAR_CACTUS_FAR,
+     BIRD_VERY_FAR_CACTUS_CLOSE,
+     BIRD_VERY_FAR_CACTUS_VERY_CLOSE},
+    {BIRD_FAR_CACTUS_VERY_FAR,
+     BIRD_FAR_CACTUS_FAR,
+     BIRD_FAR_CACTUS_CLOSE,
+     BIRD_FAR_CACTUS_VERY_CLOSE},
+    {BIRD_CLOSE_CACTUS_VERY_FAR,
+     BIRD_CLOSE_CACTUS_FAR,
+     BIRD_CLOSE_CACTUS_CLOSE,
+     BIRD_CLOSE_CACTUS_VERY_CLOSE},
+    {BIRD_VERY_CLOSE_CACTUS_VERY_FAR,
+     BIRD_VERY_CLOSE_CACTUS_FAR,
+     BIRD_VERY_CLOSE_CACTUS_CLOSE,
+     BIRD_VERY_CLOSE_CACTUS_VERY_CLOSE}};
 QLState Game::getState()
 {
-    bool isBirdClose = (bird->x > dino->x) && (-dino->x + bird->x < 15);
-    bool isCactusClose = (cactus->x > dino->x) && (-dino->x + cactus->x < 15);
-    bool isBirdFar = (bird->x > dino->x) && (-dino->x + bird->x < 60);
-    bool isCactusFar = (cactus->x > dino->x) && (-dino->x + cactus->x < 60);
-
-    if (isBirdClose && isCactusClose)
-        return BOTH_CLOSE;
-    if (isBirdClose)
-        return BIRD_CLOSE;
-    if (isCactusClose)
-        return CACTUS_CLOSE;
-    if (isBirdFar && isCactusFar)
-        return BOTH_FAR;
-    if (isBirdFar)
-        return BIRD_FAR;
-    if (isCactusFar)
-        return CACTUS_FAR;
-    return NOTHING_ON_SIGHT;
+    int birdState, cactusState;
+    birdState = cactusState = 0;
+    if (bird->x + bird->w > dino->x)
+    {
+        if (bird->x < 30)
+            birdState++;
+        if (bird->x < 20)
+            birdState++;
+        if (bird->x < 8)
+            birdState++;
+    }
+    if (cactus->x + cactus->w > dino->x)
+    {
+        if (cactus->x < 30)
+            cactusState++;
+        if (cactus->x < 20)
+            cactusState++;
+        if (cactus->x < 10)
+            cactusState++;
+    }
+    return stateMap[birdState][cactusState];
 }
 
 void Game::handleUserInput()
@@ -88,6 +130,10 @@ void Game::handleUserInput()
 
         case DOWN:
             dino->duck();
+            break;
+
+        case SELECT:
+            setTraining(!isTraining());
             break;
 
         default:
@@ -137,12 +183,12 @@ void Game::update()
     bird->move();
     cactus->move();
     {
+        dino->checkColision(cactus);
+        dino->checkColision(bird);
+
         dino->updateState();
         bird->updateState();
         cactus->updateState();
-
-        dino->checkColision(cactus);
-        dino->checkColision(bird);
 
         if (dino->state == DEAD)
         {
@@ -176,29 +222,45 @@ void Game::run()
     if (currentMillis - previousMillis >= interval)
     {
 #endif
-Serial.println("aqui");
         if (state == RUNNING)
         {
-#if FEATURE_ARDUINO
-            render();
-#endif
+            if (score > maxScore)
+                maxScore = score;
+
             update();
 #if FEATURE_ARDUINO
-            handleUserInput();
-#else
-        QLState state = getState();
-        QLAction action = qLearning.chooseAction(state);
-        handleUserInput(action);
-        int reward = score;
-        if (action == JUMP)
-            reward -= 1;
-        if (action == DUCK)
-            reward -= 1;
-
-        std::cout << action << " | " << reward << " | " << score << std::endl;
-
-        qLearning.updateQTable(state, action, reward, getState());
+            if (!isTraining())
+            {
+                handleUserInput();
+            }
+            render();
 #endif
+            if (isTraining())
+            {
+                QLState qlstate = getState();
+                QLAction qlaction = qLearning.chooseAction(qlstate);
+                handleUserInput(qlaction);
+                int qlreward = score;
+                if (qlaction == JUMP)
+                    qlreward *= .9;
+                if (qlaction == DUCK)
+                    qlreward *= .9;
+                if (dino->state == DEAD)
+                    qlreward = 0;
+
+                if (score > MAX_SCORE)
+                {
+                    state = GAME_OVER;
+                    startGame();
+                }
+
+#if !FEATURE_ARDUINO
+                if (attempts % LOG_EACH_N_ATTEMPTS == 0 || attempts > MAX_ATTEMPTS)
+                    std::cout << attempts << " : " << qlaction << " | " << score << std::endl;
+#endif
+
+                qLearning.updateQTable(qlstate, qlaction, qlreward, getState());
+            }
         }
 #if FEATURE_ARDUINO
         previousMillis = currentMillis;

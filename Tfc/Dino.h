@@ -2,6 +2,11 @@
 #define DINO_H
 
 #include "GameObject.h"
+#include "FeatureFlags.h"
+
+#if !FEATURE_ARDUINO
+#include <iostream>
+#endif
 
 enum DinoState
 {
