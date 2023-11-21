@@ -3,7 +3,7 @@
 QLearning::QLearning()
 {
     epsilon = maxEpsilon; // Default value, can be adjusted
-    learning_rate = 0.05;
+    learning_rate = 0.1;
     discount_factor = .85;
 
     // Initialize Q-table with zeros
@@ -43,19 +43,29 @@ void QLearning::printQTable()
 {
 #if !FEATURE_ARDUINO
     std::cout << std::endl;
+    std::cout << KMAG;
     std::cout << "QTable" << std::endl;
     std::cout << "\t\t\t\t\t";
+    std::cout << KBLU;
     for (int j = 0; j < NUM_ACTIONS; j++)
     {
         std::cout << actionDictionary[j] << "\t";
     }
+    std::cout << KNRM;
     std::cout << std::endl;
     for (int i = 0; i < NUM_STATES; i++)
     {
+        std::cout << KBLU;
         std::cout << stateDictionary[i] << "\t";
+        std::cout << KNRM;
         for (int j = 0; j < NUM_ACTIONS; j++)
         {
+            if (q_table[i][j] <= 0)
+                std::cout << KRED;
+            else if (getMaxIndex((QLState)i) == j)
+                std::cout << KGRN;
             std::cout << q_table[i][j] << "\t";
+            std::cout << KNRM;
         }
         std::cout << std::endl;
     }

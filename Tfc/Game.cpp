@@ -115,30 +115,23 @@ static const QLState stateMap[4][4] = {
      BIRD_VERY_CLOSE_CACTUS_VERY_CLOSE}};
 QLState Game::getState()
 {
-    // if (dino->y > 4)
+    // if (dino->y > 0)
     //     return DINO_JUMPING;
     int birdState, cactusState;
     birdState = cactusState = 0;
-    // if (bird->x / ((float)-bird->vx) < 6)
-    //     birdState++;
+    if (bird->x / ((float)-bird->vx) < 6)
+        birdState++;
     if (bird->x / ((float)-bird->vx) < 4)
-        birdState += 2;
+        birdState += 1;
     if (bird->x / ((float)-bird->vx) < 2)
         birdState++;
 
-    // if (cactus->x / ((float)-cactus->vx) < 4)
-    //     cactusState++;
-    // if (cactus->x / ((float)-cactus->vx) < 3)
-    //     cactusState++;
-    // if (cactus->x / ((float)-cactus->vx) < 2)
-    //     cactusState++;
-
-    // if (cactus->x < 20)
-    //     cactusState++;
-    if (cactus->x < 20)
+    if (cactus->x / ((float)-cactus->vx) < 8)
         cactusState++;
-    if (cactus->x < 3)
-        cactusState += 2;
+    if (cactus->x / ((float)-cactus->vx) < 4)
+        cactusState++;
+    if (cactus->x / ((float)-cactus->vx) < 3)
+        cactusState++;
 
     return stateMap[birdState][cactusState];
 }
