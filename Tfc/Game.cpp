@@ -50,12 +50,19 @@ void Game::startGame()
         if ((attempts * 10) % LOG_EACH_N_ATTEMPTS == 0)
         {
             Serial.print(F("attempts: "));
+            Serial.flush();
             Serial.print(attempts);
+            Serial.flush();
             Serial.print(F(" | maxScore: "));
+            Serial.flush();
             Serial.print(maxScore);
+            Serial.flush();
             Serial.print(F(" | epsilon: "));
+            Serial.flush();
             Serial.print(qLearning.epsilon);
+            Serial.flush();
             Serial.println();
+            Serial.flush();
         }
 #endif
         if (attempts < MAX_ATTEMPTS && maxScore < MAX_SCORE)
@@ -108,26 +115,31 @@ static const QLState stateMap[4][4] = {
      BIRD_VERY_CLOSE_CACTUS_VERY_CLOSE}};
 QLState Game::getState()
 {
+    // if (dino->y > 4)
+    //     return DINO_JUMPING;
     int birdState, cactusState;
     birdState = cactusState = 0;
-    if (bird->x + bird->w > dino->x)
-    {
-        if (bird->x < 22)
-            birdState++;
-        if (bird->x < 15)
-            birdState++;
-        if (bird->x < 8)
-            birdState++;
-    }
-    if (cactus->x + cactus->w > dino->x)
-    {
-        if (cactus->x < 20)
-            cactusState++;
-        if (cactus->x < 15)
-            cactusState++;
-        if (cactus->x < 8)
-            cactusState++;
-    }
+    // if (bird->x / ((float)-bird->vx) < 6)
+    //     birdState++;
+    if (bird->x / ((float)-bird->vx) < 4)
+        birdState += 2;
+    if (bird->x / ((float)-bird->vx) < 2)
+        birdState++;
+
+    // if (cactus->x / ((float)-cactus->vx) < 4)
+    //     cactusState++;
+    // if (cactus->x / ((float)-cactus->vx) < 3)
+    //     cactusState++;
+    // if (cactus->x / ((float)-cactus->vx) < 2)
+    //     cactusState++;
+
+    // if (cactus->x < 20)
+    //     cactusState++;
+    if (cactus->x < 20)
+        cactusState++;
+    if (cactus->x < 3)
+        cactusState += 2;
+
     return stateMap[birdState][cactusState];
 }
 
@@ -255,12 +267,14 @@ void Game::run()
         {
             if (score >= MAX_SCORE)
             {
+                state = GAME_OVER;
 #if !FEATURE_ARDUINO
                 std::cout << "Zerou na tentativa " << attempts << std::endl;
-#endif
-                state = GAME_OVER;
-                // startGame();
                 qLearning.printQTable();
+#else
+            startGame();
+#endif
+
                 return;
             }
             update();
@@ -269,10 +283,9 @@ void Game::run()
             {
                 handleUserInput();
             }
-            if (!isTraining() || attempts % LOG_EACH_N_ATTEMPTS == 0 || maxScore > 1000)
+            if (!isTraining() || attempts % LOG_EACH_N_ATTEMPTS == 0 || maxScore >= MAX_SCORE)
             {
                 interval = SHORT_INTERVAL;
-                Serial.flush();
                 render();
             }
             else
@@ -286,10 +299,10 @@ void Game::run()
                 QLAction qlaction = qLearning.chooseAction(qlstate);
                 handleUserInput(qlaction);
                 int qlreward = score;
-                if (qlaction == NOTHING)
-                    qlreward += 10;
-                if (qlaction == DUCK)
-                    qlreward += 10;
+                // if (qlaction == NOTHING)
+                //     qlreward += 10;
+                // if (qlaction == DUCK)
+                //     qlreward += 10;
                 if (dino->state == DEAD)
                     qlreward = 0;
 
